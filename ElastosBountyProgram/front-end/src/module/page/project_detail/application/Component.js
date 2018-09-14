@@ -20,7 +20,7 @@ import {
     Upload,
     Badge
 } from 'antd'
-import {upload_file} from "@/util";
+import {upload_file} from '@/util';
 import { TASK_CANDIDATE_STATUS, TASK_CANDIDATE_TYPE, TEAM_USER_STATUS } from '@/constant'
 import Comments from '@/module/common/comments/Container'
 import I18N from '@/I18N'
@@ -199,12 +199,48 @@ class C extends BaseComponent {
     }
 
     getHeader() {
+        const props = {
+            name: 'file',
+            multiple: true,
+            customRequest: (info) => {
+                this.setState({
+                    attachment_loading: true
+                });
+                upload_file(info.file).then((d) => {
+                    const url = d.url;
+                    this.setState({
+                        attachment_loading: false,
+                        attachment_url: url,
+                        attachment_type: d.type,
+                        attachment_filename: d.filename
+                    });
+
+                    this.props.form.setFieldsValue({
+                        filePath: url,
+                        fileName: d.filename,
+                        fileType: d.type
+                    })
+                })
+            },
+            onChange(info) {
+                const status = info.file.status;
+                if (status !== 'uploading') {
+                    console.log(info.file, info.fileList);
+                }
+                if (status === 'done') {
+                    message.success(`${info.file.name} file uploaded successfully.`);
+                } else if (status === 'error') {
+                    message.error(`${info.file.name} file upload failed.`);
+                }
+            }
+        };
+
         return (
             <div>
                 <div>
                     {this.getApplyWithDropdown()}
                 </div>
-                <Upload.Dragger name="file" multiple={false}>
+                <Upload.Dragger {...props}>
                     <p className="ant-upload-drag-icon">
                         <Icon type="inbox" />
                     </p>
