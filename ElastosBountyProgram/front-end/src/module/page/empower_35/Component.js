@@ -20,7 +20,6 @@ const COLOR_SCHEME = {
 }
 
 
-
 /**
  * TODO: all the positions should load from the DB, copy pasting for now
  * until applications are being processed
@@ -504,6 +503,7 @@ export default class extends StandardPage {
         if (this.props.is_login) {
             return
         }
+        console.log("registerorlogin")
 
         return (
             <Modal

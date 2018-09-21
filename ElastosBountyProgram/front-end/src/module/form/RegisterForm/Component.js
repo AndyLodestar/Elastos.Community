@@ -16,7 +16,8 @@ const FormItem = Form.Item
 class C extends BaseComponent {
 
     state = {
-        requestedCode: null
+        requestedCode: null,
+        showWelcome: false
     }
 
     handleSubmit(e) {
@@ -29,7 +30,21 @@ class C extends BaseComponent {
                 if (this.state.requestedCode) {
                     this.props.register(this.state.savedValues.username,
                         this.state.savedValues.password, _.omit(this.state.savedValues, ['username', 'password']))
-                } else {
+                        .then(() => {
+                            if (sessionStorage.getItem('registered')) {
+                                this.setState({
+                                    requestedCode: null,
+                                    showWelcome: true
+                                })
+                            }
+                        })
+                } else if (this.state.showWelcome) {
+                    e.preventDefault()
+                    const registerRedirect = sessionStorage.getItem('registerRedirect')
+                    sessionStorage.removeItem('registerRedirect')
+                    this.props.history.replace(registerRedirect)
+                }
+                else {
                     const code = this.generateRegCode()
                     this.props.sendRegistrationCode(values.email, code)
                     this.setState({
@@ -265,6 +280,18 @@ class C extends BaseComponent {
                     </FormItem>
                 </Form>
             )
+        } else if (this.state.showWelcome) {
+            return (
+                <Form onSubmit={this.handleSubmit.bind(this)} className="d_registerForm d_registerFormWelcome">
+                    <h3 className="welcome-header komu-a">{I18N.get('register.welcome')}</h3>
+                    <p className="welcome-text synthese">{I18N.get('register.join_circle')}</p>
+                    <FormItem>
+                        <Button loading={this.props.loading} type="ebp" htmlType="submit" className="d_btn d_btn_join" onClick={this.handleSubmit.bind(this)}>
+                            {I18N.get('register.join')}
+                        </Button>
+                    </FormItem>
+                </Form>
+            )
         } else {
             const p = this.getInputProps()
             return (
@@ -281,9 +308,9 @@ class C extends BaseComponent {
                     <FormItem>
                         {p.pwdConfirm}
                     </FormItem>
-                    {/*<FormItem>
+                    {/* <FormItem>
                         {p.recaptcha}
-                    </FormItem>*/}
+                    </FormItem> */}
                     <FormItem>
                         <Button loading={this.props.loading} type="ebp" htmlType="submit" className="d_btn" onClick={this.handleSubmit.bind(this)}>
                             {I18N.get('register.submit')}

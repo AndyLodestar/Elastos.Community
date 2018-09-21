@@ -36,9 +36,7 @@ export default createContainer(Component, (state) => {
                     const registerRedirect = sessionStorage.getItem('registerRedirect')
 
                     if (registerRedirect) {
-                        sessionStorage.removeItem('registerRedirect')
                         sessionStorage.setItem('registered', true)
-                        this.history.push(registerRedirect)
                     } else {
                         this.history.replace('/login')
                     }
